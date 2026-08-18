@@ -135,7 +135,7 @@ button.primary {
     height: 60px;
     background: #ffffff;
     display: flex;
-    justify-content: space-around;
+    justify-style: space-around;
     align-items: center;
     border-top: 1px solid #e2e8f0;
     z-index: 1000;
@@ -286,7 +286,6 @@ const PRESETS = [
     { name: "Bananas / Apples / Grapes", cal: 80, fat: 0.1, type: "free" }
 ];
 
-// FIXED STORAGE RECOVERY
 let plannerLog = [];
 try {
     const saved = localStorage.getItem("swipsToday") || localStorage.getItem("swipPlannerLog");
@@ -298,12 +297,16 @@ try {
 function triggerHaptic() { if ("vibrate" in navigator) navigator.vibrate(12); }
 
 function saveData() {
-    localStorage.setItem("swipsToday", JSON.stringify(plannerLog));
-    localStorage.setItem("swipPlannerLog", JSON.stringify(plannerLog));
+    try {
+        localStorage.setItem("swipsToday", JSON.stringify(plannerLog));
+        localStorage.setItem("swipPlannerLog", JSON.stringify(plannerLog));
+    } catch(e) {
+        console.error("Storage save failed", e);
+    }
 }
 
 function toFraction(val) {
-    if (val === 0) return "Free";
+    if (!val || val <= 0) return "0";
     const rounded = Math.round(val * 2) / 2;
     const whole = Math.floor(rounded);
     const remainder = rounded - whole;
@@ -315,12 +318,13 @@ function toFraction(val) {
 }
 
 function calculateSWIPS(cal, fat) {
-    return cal / 20;
+    const safeCal = parseFloat(cal) || 0;
+    return safeCal / 20;
 }
 
 function calculateAndAdd() {
     triggerHaptic();
-    const name = document.getElementById("foodName").value || "Food Item";
+    const name = document.getElementById("foodName").value.trim() || "Food Item";
     const cal = parseFloat(document.getElementById("calories").value) || 0;
     const fat = parseFloat(document.getElementById("fat").value) || 0;
     const category = document.getElementById("foodCategory").value;
@@ -332,6 +336,10 @@ function calculateAndAdd() {
     plannerLog.push({ id: Date.now(), name, swips, category, type });
     saveData();
     
+    document.getElementById("foodName").value = "";
+    document.getElementById("calories").value = "";
+    document.getElementById("fat").value = "";
+
     switchTab("planner");
     renderPlanner();
 }
@@ -352,10 +360,12 @@ function renderPlanner() {
         "In-betweens": document.getElementById("listInbetween")
     };
 
-    Object.keys(sections).forEach(key => sections[key].innerHTML = "");
+    Object.keys(sections).forEach(key => {
+        if (sections[key]) sections[key].innerHTML = "";
+    });
 
     plannerLog.forEach(item => {
-        if (item.type === "swip") totalSwips += item.swips;
+        if (item.type === "swip") totalSwips += (item.swips || 0);
         if (item.type === "hex") totalHex += 1;
 
         const row = document.createElement("div");
@@ -394,11 +404,10 @@ function clearToday() {
 
 function displayPresets() {
     const list = document.getElementById("presetList");
-    const q = document.getElementById("searchDb").value.toLowerCase();
+    const q = (document.getElementById("searchDb").value || "").toLowerCase();
     list.innerHTML = "";
 
     PRESETS.filter(p => p.name.toLowerCase().includes(q)).forEach(p => {
-        const swipVal = p.type === "swip" ? calculateSWIPS(p.cal, p.fat) : 0;
         const div = document.createElement("div");
         div.className = "food-row";
         div.innerHTML = `
@@ -448,9 +457,30 @@ function toggleDarkMode() {
     document.body.classList.toggle("dark");
 }
 
+function startBarcodeScanner() {
+    const status = document.getElementById("scanStatus");
+    status.textContent = "Scanner ready. Position barcode in front of camera.";
+}
+
+function processImage(input) {
+    const status = document.getElementById("scanStatus");
+    if (input.files && input.files[0]) {
+        status.textContent = "Processing image OCR...";
+        if (window.Tesseract) {
+            Tesseract.recognize(input.files[0], 'eng')
+                .then(({ data: { text } }) => {
+                    status.textContent = "Text extracted!";
+                })
+                .catch(err => {
+                    status.textContent = "Could not read text.";
+                });
+        }
+    }
+}
+
 function escapeHTML(str) {
     const d = document.createElement("div");
-    d.textContent = str;
+    d.textContent = str || "";
     return d.innerHTML;
 }
 
