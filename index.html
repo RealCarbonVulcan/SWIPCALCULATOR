@@ -2,25 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<!-- Optimized viewport for S23 Ultra AMOLED display and safe-area notch/edge handling -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#6b4eff">
-
-<!-- WebApp / APK capabilities -->
+<meta name="theme-color" content="#e11d48">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<title>SWIPS Calculator</title>
+<title>SWIPS Planner</title>
 
-<!-- Tesseract.js for offline OCR scanning -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<!-- Html5-Qrcode for camera barcode scanning -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
 * {
     box-sizing: border-box;
-    /* Hardware acceleration for ultra-smooth 120Hz scrolling on S23 Ultra */
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
 }
@@ -28,955 +22,519 @@
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: #f4f4f7;
-    color: #222;
-    /* Respect Android gesture navigation bar & camera hole-punch insets */
+    background: #f8fafc;
+    color: #1e293b;
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
     overflow-x: hidden;
-    overscroll-behavior-y: contain;
 }
 
-/* OLED Deep Black Dark Mode (Saves battery on S23 Ultra Dynamic AMOLED) */
 body.dark {
-    background: #000000;
-    color: #f1f1f1;
+    background: #090d16;
+    color: #f1f5f9;
 }
 
 header {
-    background: #6b4eff;
+    background: #e11d48;
     color: white;
-    padding: 20px 18px 16px;
+    padding: 16px 18px;
     text-align: center;
-    box-shadow: 0 4px 14px rgba(107, 78, 255, 0.25);
+    position: relative;
 }
 
 header h1 {
     margin: 0;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 700;
-    letter-spacing: -0.5px;
-}
-
-header p {
-    margin: 4px 0 0;
-    font-size: 13px;
-    opacity: 0.9;
+    font-family: "Georgia", serif;
+    font-style: italic;
 }
 
 .container {
-    max-width: 650px;
+    max-width: 600px;
     margin: auto;
-    padding: 12px 16px 24px;
+    padding: 12px 14px 80px;
 }
 
 .card {
     background: #ffffff;
-    border-radius: 20px;
-    padding: 18px;
-    margin-bottom: 14px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
 }
 
 .dark .card {
-    background: #121215;
-    border: 1px solid #222228;
+    background: #151c2c;
+    border: 1px solid #222f47;
 }
 
-h2 {
-    margin-top: 0;
-    font-size: 18px;
-}
-
-h3 {
-    margin-top: 0;
-    font-size: 16px;
-}
-
-label {
-    display: block;
-    margin-top: 14px;
+/* PLANNER RINGS */
+.date-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     font-weight: 600;
-    font-size: 14px;
-}
-
-/* Touch-optimized inputs for S-Pen and high-precision touch */
-input {
-    width: 100%;
-    height: 48px;
-    padding: 0 14px;
-    margin-top: 6px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 12px;
-    font-size: 16px; /* Prevents auto-zoom in mobile webview */
-    background: #f8fafc;
-    color: #0f172a;
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-input:focus {
-    border-color: #6b4eff;
-    box-shadow: 0 0 0 3px rgba(107, 78, 255, 0.15);
-}
-
-.dark input {
-    background: #1e1e24;
-    color: #ffffff;
-    border-color: #33333e;
-}
-
-.dark input:focus {
-    border-color: #8367ff;
-}
-
-button {
-    border: 0;
-    border-radius: 12px;
-    height: 48px;
-    padding: 0 16px;
     font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 10px;
-    display: inline-flex;
+    margin-bottom: 16px;
+}
+
+.rings-container {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.ring-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30%;
+}
+
+.ring {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 6px solid #e2e8f0;
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    transition: transform 0.1s ease, opacity 0.2s ease;
-}
-
-button:active {
-    transform: scale(0.98);
-    opacity: 0.9;
-}
-
-.primary {
-    width: 100%;
-    background: #6b4eff;
-    color: white;
-}
-
-.scan-btn {
-    width: 100%;
-    background: #10b981;
-    color: white;
+    font-size: 18px;
+    font-weight: 700;
     margin-bottom: 6px;
 }
 
-.barcode-btn {
-    width: 100%;
-    background: #0284c7;
-    color: white;
+.dark .ring { border-color: #2a3854; }
+
+.ring.swips { border-color: #a855f7; color: #a855f7; }
+.ring.hex { border-color: #ea580c; color: #ea580c; }
+.ring.activity { border-color: #64748b; color: #64748b; }
+
+.ring-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
 }
 
-.secondary {
-    background: #f0edff;
-    color: #583be2;
-}
-
-.dark .secondary {
-    background: #272144;
-    color: #bca8ff;
-}
-
-.danger {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
-.dark .danger {
-    background: #3f1717;
-    color: #fca5a5;
-}
-
-.result {
-    text-align: center;
-    padding: 20px;
-    margin-top: 16px;
-    border-radius: 16px;
-    background: #f0edff;
-}
-
-.dark .result {
-    background: #1e1938;
-}
-
-.result-number {
-    font-size: 48px;
-    font-weight: 800;
-    color: #6b4eff;
-    line-height: 1.1;
-    margin: 8px 0 14px;
-}
-
-.dark .result-number {
-    color: #a088ff;
-}
-
-/* Horizontal Sticky/Scrollable Navigation Tabs */
-.tabs {
+/* MEAL SECTIONS */
+.meal-header {
     display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(244, 244, 247, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    padding: 4px 0;
-}
-
-.dark .tabs {
-    background: rgba(0, 0, 0, 0.85);
-}
-
-.tab {
-    flex: 1;
-    height: 42px;
-    margin-top: 0;
-    background: #e2e8f0;
-    color: #475569;
-    border-radius: 10px;
-    font-size: 13px;
-    padding: 0 4px;
-}
-
-.tab.active {
-    background: #6b4eff;
-    color: white;
-}
-
-.dark .tab {
-    background: #1e1e24;
-    color: #94a3b8;
-}
-
-.dark .tab.active {
-    background: #6b4eff;
-    color: white;
-}
-
-.food {
-    border-top: 1px solid #f1f5f9;
-    padding: 14px 0;
-}
-
-.dark .food {
-    border-top-color: #222228;
-}
-
-.food:first-child {
-    border-top: none;
-}
-
-.food-name {
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 17px;
     font-weight: 700;
-    font-size: 16px;
 }
 
-.food-buttons {
+.dark .meal-header { border-bottom-color: #222f47; }
+
+.meal-add-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    color: #000000;
+    cursor: pointer;
+    padding: 0 8px;
+    margin: 0;
+}
+
+.dark .meal-add-btn { color: #ffffff; }
+
+.food-row {
     display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 6px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px dashed #e2e8f0;
+    font-size: 14px;
 }
 
-.food-buttons button {
-    height: 38px;
-    font-size: 13px;
-    margin-top: 4px;
+.dark .food-row { border-bottom-color: #222f47; }
+
+.food-title {
+    flex: 1;
+    padding-right: 10px;
 }
 
-.hidden {
-    display: none !important;
-}
-
-.total {
-    text-align: center;
-    font-size: 54px;
-    font-weight: 800;
-    color: #6b4eff;
-    line-height: 1;
-    margin: 10px 0;
-}
-
-.dark .total {
-    color: #a088ff;
-}
-
-.small {
-    font-size: 12px;
-    opacity: 0.7;
-    line-height: 1.4;
-}
-
-.toggle {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 8px;
-}
-
-.toggle button {
-    height: 36px;
-    font-size: 12px;
-    margin-top: 0;
-}
-
-.badge-custom {
-    display: inline-block;
-    background: #6b4eff;
+.val-swip { color: #a855f7; font-weight: 700; }
+.val-free { color: #16a34a; font-weight: 700; }
+.val-hex {
+    background: #ea580c;
     color: white;
     font-size: 10px;
-    font-weight: 700;
+    font-weight: 800;
     padding: 2px 6px;
-    border-radius: 6px;
-    margin-left: 6px;
-    vertical-align: middle;
+    border-radius: 50%;
 }
 
-#scanStatus {
-    margin-top: 12px;
-    font-weight: 600;
-    font-size: 14px;
-    color: #6b4eff;
-    text-align: center;
-}
-
-#barcodeScannerView {
+/* FORM CONTROLS */
+label { display: block; margin-top: 10px; font-weight: 600; font-size: 13px; }
+input, select {
     width: 100%;
-    margin-top: 12px;
-    border-radius: 14px;
-    overflow: hidden;
-    background: #000;
+    height: 44px;
+    padding: 0 12px;
+    margin-top: 4px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 15px;
+    background: #ffffff;
+    color: #0f172a;
 }
+.dark input, .dark select {
+    background: #1e293b;
+    color: #fff;
+    border-color: #334155;
+}
+
+button.primary {
+    width: 100%;
+    height: 46px;
+    background: #e11d48;
+    color: white;
+    border: 0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 12px;
+}
+
+/* BOTTOM NAVIGATION NAVBAR */
+.nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: #ffffff;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid #e2e8f0;
+    z-index: 1000;
+}
+.dark .nav-bar { background: #0f172a; border-top-color: #1e293b; }
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 11px;
+    color: #64748b;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+.nav-item.active { color: #e11d48; font-weight: 700; }
+
+.hidden { display: none !important; }
 </style>
 </head>
-
 <body>
 
 <header>
-    <h1>SWIPS Calculator</h1>
-    <p>Slimming World's Individual Picks</p>
+    <h1>Planner</h1>
 </header>
 
 <div class="container">
 
-    <div class="toggle">
-        <button class="secondary" onclick="toggleDarkMode()">
-            🌙 Dark mode
-        </button>
-    </div>
-
-    <div class="tabs">
-        <button id="tabCalculator" class="tab active" onclick="showTab('calculator')">Calculator</button>
-        <button id="tabDatabase" class="tab" onclick="showTab('database')">Presets</button>
-        <button id="tabFoods" class="tab" onclick="showTab('foods')">Saved</button>
-        <button id="tabToday" class="tab" onclick="showTab('today')">Today</button>
-    </div>
-
-    <!-- CALCULATOR -->
-    <section id="calculator">
+    <!-- PLANNER TAB -->
+    <section id="tabPlanner">
         <div class="card">
-            <h2>📷 AI & Barcode Scanner</h2>
-            
-            <button class="barcode-btn" onclick="startBarcodeScanner()">
-                🏷️ Scan Barcode (Open Food Facts)
-            </button>
+            <div class="date-bar">
+                <span>📅 Today's Log</span>
+                <button onclick="toggleDarkMode()" style="border:none; background:none; font-size:12px; cursor:pointer;">🌙 Mode</button>
+            </div>
 
-            <!-- High-resolution photo capture config for 200MP Samsung S23 Ultra Camera -->
-            <button class="scan-btn" onclick="document.getElementById('cameraInput').click()">
-                📷 Photo Scan Label (OCR)
-            </button>
-            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="processImage(this)">
-            
-            <div id="barcodeScannerView" class="hidden"></div>
-            <button id="stopBarcodeBtn" class="danger hidden" onclick="stopBarcodeScanner()" style="width: 100%;">Cancel Barcode Scan</button>
-            <div id="scanStatus"></div>
-        </div>
-
-        <div class="card">
-            <h2>🧮 Calculate SWIPs</h2>
-
-            <label for="foodName">Food name</label>
-            <input id="foodName" placeholder="e.g. Chocolate bar" autocomplete="off">
-
-            <label for="calories">Calories (kcal)</label>
-            <input id="calories" type="number" inputmode="decimal" min="0" step="0.1" placeholder="Calories">
-
-            <label for="fat">Fat (g)</label>
-            <input id="fat" type="number" inputmode="decimal" min="0" step="0.1" placeholder="Fat">
-
-            <label for="servings">Number of servings</label>
-            <input id="servings" type="number" inputmode="decimal" min="0.1" step="0.1" value="1">
-
-            <button class="primary" onclick="calculate()">
-                Calculate SWIPs
-            </button>
-
-            <div id="result" class="result hidden">
-                <div>SWIPs per serving</div>
-                <div id="resultNumber" class="result-number">0</div>
-
-                <div style="display: flex; gap: 8px;">
-                    <button class="secondary" style="flex:1;" onclick="saveCurrentFood()">💾 Save Food</button>
-                    <button class="secondary" style="flex:1;" onclick="addCurrentToToday()">➕ Add Today</button>
+            <div class="rings-container">
+                <div class="ring-box">
+                    <div id="ringHex" class="ring hex">0</div>
+                    <span class="ring-label">Healthy Extras</span>
+                </div>
+                <div class="ring-box">
+                    <div id="ringSwips" class="ring swips">0</div>
+                    <span class="ring-label">Swips</span>
+                </div>
+                <div class="ring-box">
+                    <div id="ringActivity" class="ring activity">0</div>
+                    <span class="ring-label">Activity</span>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h3>Formula</h3>
-            <p class="small">
-                SWIPs = (Calories ÷ 20) + (Fat × 0.5)<br>
-                This calculator uses the formula supplied for this app and does not automatically apply any free-food allowance.
-            </p>
+            <div class="meal-header">
+                <span>Breakfast</span>
+                <button class="meal-add-btn" onclick="quickAddModal('Breakfast')">+</button>
+            </div>
+            <div id="listBreakfast"></div>
+
+            <div class="meal-header" style="margin-top:10px;">
+                <span>Lunch</span>
+                <button class="meal-add-btn" onclick="quickAddModal('Lunch')">+</button>
+            </div>
+            <div id="listLunch"></div>
+
+            <div class="meal-header" style="margin-top:10px;">
+                <span>Dinner</span>
+                <button class="meal-add-btn" onclick="quickAddModal('Dinner')">+</button>
+            </div>
+            <div id="listDinner"></div>
+
+            <div class="meal-header" style="margin-top:10px;">
+                <span>In-betweens</span>
+                <button class="meal-add-btn" onclick="quickAddModal('In-betweens')">+</button>
+            </div>
+            <div id="listInbetween"></div>
+
+            <button onclick="clearToday()" style="width:100%; background:#fee2e2; color:#dc2626; border:0; height:38px; border-radius:8px; margin-top:16px; font-weight:600;">Clear Log</button>
         </div>
     </section>
 
-    <!-- PRESET DATABASE -->
-    <section id="database" class="hidden">
+    <!-- CALCULATOR TAB -->
+    <section id="tabCalculator" class="hidden">
         <div class="card">
-            <h2>➕ Add Custom Preset</h2>
-            <label for="customPresetName">Food Name & Portion</label>
-            <input id="customPresetName" placeholder="e.g. Greggs Sausage Roll">
-
-            <label for="customPresetCalories">Calories (kcal)</label>
-            <input id="customPresetCalories" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 329">
-
-            <label for="customPresetFat">Fat (g)</label>
-            <input id="customPresetFat" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 21.0">
-
-            <button class="primary" onclick="addCustomPreset()">
-                ➕ Add to Preset Library
-            </button>
+            <h2>📷 Scanners</h2>
+            <button style="width:100%; height:40px; background:#0284c7; color:#fff; border:0; border-radius:8px; margin-bottom:6px;" onclick="startBarcodeScanner()">🏷️ Scan Barcode</button>
+            <button style="width:100%; height:40px; background:#10b981; color:#fff; border:0; border-radius:8px;" onclick="document.getElementById('cameraInput').click()">📷 Photo Label (OCR)</button>
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="processImage(this)">
+            <div id="barcodeScannerView" class="hidden" style="width:100%; margin-top:10px; background:#000;"></div>
+            <div id="scanStatus" style="text-align:center; font-size:12px; margin-top:6px;"></div>
         </div>
 
         <div class="card">
-            <h2>📚 Common UK Food Library</h2>
-            <input id="searchDb" placeholder="🔎 Search preset foods..." oninput="displayPresetDatabase()">
-            <div id="presetFoodList"></div>
+            <h2>🧮 SWIP Calculator</h2>
+            <label>Food Name</label>
+            <input id="foodName" placeholder="e.g. Tesco Tikka Chicken">
+
+            <label>Category</label>
+            <select id="foodCategory">
+                <option value="Breakfast">Breakfast</option>
+                <option value="Lunch" selected>Lunch</option>
+                <option value="Dinner">Dinner</option>
+                <option value="In-betweens">In-betweens</option>
+            </select>
+
+            <label>Calories (kcal)</label>
+            <input id="calories" type="number" inputmode="decimal">
+
+            <label>Fat (g)</label>
+            <input id="fat" type="number" inputmode="decimal">
+
+            <label>Type</label>
+            <select id="foodType">
+                <option value="swip">Standard SWIP</option>
+                <option value="free">Free Food (0 SWIPs)</option>
+                <option value="hex">Healthy Extra (HEX)</option>
+            </select>
+
+            <button class="primary" onclick="calculateAndAdd()">Calculate & Add to Planner</button>
         </div>
     </section>
 
-    <!-- SAVED FOODS -->
-    <section id="foods" class="hidden">
+    <!-- PRESETS TAB -->
+    <section id="tabPresets" class="hidden">
         <div class="card">
-            <h2>🍎 Saved Foods</h2>
-            <input id="search" placeholder="🔎 Search my saved foods..." oninput="displayFoods()">
-            <div id="foodList"></div>
-        </div>
-    </section>
-
-    <!-- TODAY -->
-    <section id="today" class="hidden">
-        <div class="card">
-            <h2>📊 Today's SWIPs</h2>
-            <div id="todayTotal" class="total">0</div>
-            <p style="text-align:center; font-size:14px; opacity: 0.8; margin-top: -5px;">SWIPs consumed today</p>
-
-            <button class="danger" style="width: 100%;" onclick="clearToday()">
-                🗑️ Clear Today's Total
-            </button>
-        </div>
-
-        <div class="card">
-            <h3>Today's Log</h3>
-            <div id="todayFoods"></div>
+            <h2>📚 Tesco & Sainsbury's Presets</h2>
+            <input id="searchDb" placeholder="🔎 Search presets..." oninput="displayPresets()">
+            <div id="presetList"></div>
         </div>
     </section>
 
 </div>
 
-<script>
-// OPTIMIZED FOR MOBILE: Pre-compiled regex patterns for OCR scanning speed
-const CAL_REGEX = /(?:energy|calories|kcal|kJ)[\s:]*([0-9]+(?:\.[0-9]+)?)/i;
-const CAL_FALLBACK_REGEX = /([0-9]+)\s*kcal/i;
-const FAT_REGEX = /(?:fat|lipid|saturates)[\s:]*([0-9]+(?:\.[0-9]+)?)\s*g?/i;
+<!-- BOTTOM NAVIGATION -->
+<div class="nav-bar">
+    <button id="navPlan" class="nav-item active" onclick="switchTab('planner')">
+        <span style="font-size:18px;">📝</span>
+        Planner
+    </button>
+    <button id="navCalc" class="nav-item" onclick="switchTab('calc')">
+        <span style="font-size:18px;">🧮</span>
+        Calculator
+    </button>
 
-const DEFAULT_PRESETS = [
-    { id: "def_1", name: "KitKat 4 Finger (45g)", calories: 232, fat: 11.3, isCustom: false },
-    { id: "def_2", name: "Mars Bar (51g)", calories: 228, fat: 8.5, isCustom: false },
-    { id: "def_3", name: "Snickers (48g)", calories: 242, fat: 12.0, isCustom: false },
-    { id: "def_4", name: "Cadbury Dairy Milk (45g)", calories: 240, fat: 14.0, isCustom: false },
-    { id: "def_5", name: "Freddo Chocolate (18g)", calories: 95, fat: 5.3, isCustom: false },
-    { id: "def_6", name: "Walkers Ready Salted Crisps (25g)", calories: 132, fat: 8.0, isCustom: false },
-    { id: "def_7", name: "Walkers Cheese & Onion Crisps (25g)", calories: 133, fat: 8.1, isCustom: false },
-    { id: "def_8", name: "Monster Munch Pickled Onion (20g)", calories: 98, fat: 4.9, isCustom: false },
-    { id: "def_9", name: "Skips Tingly Prawn Cocktail (13.1g)", calories: 71, fat: 3.8, isCustom: false },
-    { id: "def_10", name: "Quavers Cheese (16.4g)", calories: 86, fat: 4.9, isCustom: false },
-    { id: "def_11", name: "Digestive Biscuit (1 biscuit)", calories: 71, fat: 3.2, isCustom: false },
-    { id: "def_12", name: "Rich Tea Biscuit (1 biscuit)", calories: 38, fat: 1.3, isCustom: false },
-    { id: "def_13", name: "Bourbon Biscuit (1 biscuit)", calories: 67, fat: 3.0, isCustom: false },
-    { id: "def_14", name: "Oreo Original (1 biscuit)", calories: 53, fat: 2.3, isCustom: false },
-    { id: "def_15", name: "Jaffa Cake (1 cake)", calories: 46, fat: 1.0, isCustom: false },
-    { id: "def_16", name: "Heinz Baked Beans (1/2 can 207g)", calories: 162, fat: 0.6, isCustom: false },
-    { id: "def_17", name: "Heinz Tomato Soup (1/2 can 200g)", calories: 102, fat: 2.2, isCustom: false },
-    { id: "def_18", name: "Flora Light Spread (10g)", calories: 28, fat: 3.0, isCustom: false },
-    { id: "def_19", name: "Cheddar Cheese (30g)", calories: 125, fat: 10.5, isCustom: false },
-    { id: "def_20", name: "Semi-Skimmed Milk (200ml)", calories: 100, fat: 3.6, isCustom: false }
+    <button id="navPreset" class="nav-item" onclick="switchTab('presets')">
+        <span style="font-size:18px;">📚</span>
+        Presets
+    </button>
+</div>
+
+<script>
+const PRESETS = [
+    { name: "Tesco Tikka Chicken Breast Pieces (120g)", cal: 170, fat: 2.2, type: "swip" },
+    { name: "Tesco Lean Beef Mince 5% Fat (100g)", cal: 131, fat: 5.0, type: "free" },
+    { name: "Sainsbury's Be Good To Yourself Cooked Ham", cal: 105, fat: 1.8, type: "free" },
+    { name: "Sainsbury's Cottage Cheese Fat Free (100g)", cal: 66, fat: 0.2, type: "free" },
+    { name: "Mission Foods Carb Balance Wraps (50g)", cal: 130, fat: 3.5, type: "hex" },
+    { name: "Siggi's 2% Skyr Yogurt (140g)", cal: 110, fat: 2.0, type: "swip" },
+    { name: "Pom-Bear Original (13g)", cal: 65, fat: 3.4, type: "swip" },
+    { name: "Bananas / Apples / Grapes", cal: 80, fat: 0.1, type: "free" }
 ];
 
-let customPresets = JSON.parse(localStorage.getItem("swipsCustomPresets") || "[]");
-let foods = JSON.parse(localStorage.getItem("swipsFoods") || "[]");
-let todayFoods = JSON.parse(localStorage.getItem("swipsToday") || "[]");
-let currentFood = null;
+let plannerLog = JSON.parse(localStorage.getItem("swipPlannerLog") || "[]");
 let html5QrcodeScanner = null;
 
-// Native Tactile Feedback helper for S23 Ultra Haptic Engine
-function triggerHaptic() {
-    if ("vibrate" in navigator) {
-        navigator.vibrate(15);
-    }
-}
+function triggerHaptic() { if ("vibrate" in navigator) navigator.vibrate(12); }
 
-function addCustomPreset() {
-    triggerHaptic();
-    const nameInput = document.getElementById("customPresetName");
-    const calInput = document.getElementById("customPresetCalories");
-    const fatInput = document.getElementById("customPresetFat");
-
-    const name = nameInput.value.trim();
-    const calories = parseFloat(calInput.value);
-    const fat = parseFloat(fatInput.value);
-
-    if (!name || isNaN(calories) || calories < 0 || isNaN(fat) || fat < 0) {
-        alert("Please provide a valid name, calorie count, and fat value.");
-        return;
-    }
-
-    const newPreset = {
-        id: "cust_" + Date.now(),
-        name: name,
-        calories: calories,
-        fat: fat,
-        isCustom: true
-    };
-
-    customPresets.unshift(newPreset);
-    localStorage.setItem("swipsCustomPresets", JSON.stringify(customPresets));
-
-    nameInput.value = "";
-    calInput.value = "";
-    fatInput.value = "";
-
-    alert(`"${name}" added to Preset Library!`);
-    displayPresetDatabase();
-}
-
-function deleteCustomPreset(id) {
-    triggerHaptic();
-    if (!confirm("Delete this custom preset?")) return;
-    customPresets = customPresets.filter(item => item.id !== id);
-    localStorage.setItem("swipsCustomPresets", JSON.stringify(customPresets));
-    displayPresetDatabase();
-}
-
-// BARCODE SCANNING (Camera hardware optimized for Samsung multi-lens setup)
-function startBarcodeScanner() {
-    triggerHaptic();
-    const view = document.getElementById("barcodeScannerView");
-    const stopBtn = document.getElementById("stopBarcodeBtn");
-    const status = document.getElementById("scanStatus");
-
-    view.classList.remove("hidden");
-    stopBtn.classList.remove("hidden");
-    status.textContent = "🎥 Point camera at product barcode...";
-
-    html5QrcodeScanner = new Html5Qrcode("barcodeScannerView");
+function toFraction(val) {
+    if (val === 0) return "Free";
+    const rounded = Math.round(val * 2) / 2;
+    const whole = Math.floor(rounded);
+    const remainder = rounded - whole;
     
-    // Configured for ultra-wide focus compatibility on S23 Ultra
-    const config = { 
-        fps: 15, 
-        qrbox: { width: 280, height: 160 },
-        experimentalFeatures: { useBarCodeDetectorIfSupported: true }
-    };
-
-    html5QrcodeScanner.start(
-        { facingMode: "environment" },
-        config,
-        async (decodedText) => {
-            triggerHaptic();
-            stopBarcodeScanner();
-            status.textContent = "🔎 Barcode detected! Looking up Open Food Facts...";
-            await fetchBarcodeNutrition(decodedText);
-        },
-        () => {}
-    ).catch(err => {
-        status.textContent = "❌ Camera access failed or denied.";
-        stopBarcodeScanner();
-    });
-}
-
-function stopBarcodeScanner() {
-    if (html5QrcodeScanner) {
-        html5QrcodeScanner.stop().then(() => {
-            html5QrcodeScanner.clear();
-            document.getElementById("barcodeScannerView").classList.add("hidden");
-            document.getElementById("stopBarcodeBtn").classList.add("hidden");
-        }).catch(() => {});
+    if (remainder === 0.5) {
+        return whole === 0 ? "½" : whole + "½";
     }
+    return whole.toString();
 }
 
-async function fetchBarcodeNutrition(barcode) {
-    const status = document.getElementById("scanStatus");
-    try {
-        const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
-        const data = await response.json();
-
-        if (data.status === 1 && data.product) {
-            const product = data.product;
-            const name = product.product_name || "Barcode Item";
-            const cal = product.nutriments["energy-kcal_100g"] || product.nutriments["energy-kcal"] || 0;
-            const fat = product.nutriments["fat_100g"] || product.nutriments["fat"] || 0;
-
-            document.getElementById("foodName").value = name;
-            document.getElementById("calories").value = cal;
-            document.getElementById("fat").value = fat;
-
-            status.textContent = `✅ Found: ${name} (per 100g)`;
-            calculate();
-        } else {
-            status.textContent = "⚠️ Product not found in database.";
-        }
-    } catch (err) {
-        status.textContent = "❌ Network error searching barcode.";
-    }
+function calculateSWIPS(cal, fat) {
+    return (cal / 20) + (fat * 0.5);
 }
 
-// OPTIMIZED OCR PROCESSOR FOR HIGH-RES CAMERA IMAGES
-async function processImage(input) {
-    const file = input.files[0];
-    if (!file) return;
-
+function calculateAndAdd() {
     triggerHaptic();
-    const status = document.getElementById("scanStatus");
-    status.textContent = "⌛ Reading image... Processing OCR...";
+    const name = document.getElementById("foodName").value || "Food Item";
+    const cal = parseFloat(document.getElementById("calories").value) || 0;
+    const fat = parseFloat(document.getElementById("fat").value) || 0;
+    const category = document.getElementById("foodCategory").value;
+    const type = document.getElementById("foodType").value;
 
-    try {
-        // Dynamic Canvas Rescaling: Prevents out-of-memory crashes on Samsung's high megapixel photos
-        const resizedImageBlob = await resizeImageForOCR(file, 1600);
+    let swips = 0;
+    if (type === "swip") swips = calculateSWIPS(cal, fat);
 
-        const worker = await Tesseract.createWorker('eng');
-        const ret = await worker.recognize(resizedImageBlob);
-        await worker.terminate();
-
-        const text = ret.data.text;
-        status.textContent = "🔍 Extracting nutritional data...";
-
-        const calMatch = text.match(CAL_REGEX) || text.match(CAL_FALLBACK_REGEX);
-        const fatMatch = text.match(FAT_REGEX);
-
-        let found = false;
-
-        if (calMatch) {
-            document.getElementById("calories").value = calMatch[1];
-            found = true;
-        }
-
-        if (fatMatch) {
-            document.getElementById("fat").value = fatMatch[1];
-            found = true;
-        }
-
-        if (found) {
-            status.textContent = "✅ Values detected! Check details & calculate.";
-            if (!document.getElementById("foodName").value) {
-                document.getElementById("foodName").value = "Scanned Item";
-            }
-            calculate();
-        } else {
-            status.textContent = "⚠️ Could not read label values clearly. Enter manually.";
-        }
-    } catch (err) {
-        status.textContent = "❌ Image scan failed. Try a closer, clearer photo.";
-    }
-}
-
-// Client-side image scaling to keep OCR fast and light on RAM
-function resizeImageForOCR(file, maxDimension) {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => {
-            let width = img.width;
-            let height = img.height;
-
-            if (width > maxDimension || height > maxDimension) {
-                if (width > height) {
-                    height = Math.round((height * maxDimension) / width);
-                    width = maxDimension;
-                } else {
-                    width = Math.round((width * maxDimension) / height);
-                    height = maxDimension;
-                }
-            }
-
-            const canvas = document.createElement("canvas");
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0, width, height);
-
-            canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.85);
-        };
-        img.src = URL.createObjectURL(file);
-    });
-}
-
-// CALCULATION
-function calculateSWIPS(calories, fat) {
-    return (calories / 20) + (fat * 0.5);
-}
-
-function calculate() {
-    triggerHaptic();
-    const name = document.getElementById("foodName").value.trim();
-    const calories = parseFloat(document.getElementById("calories").value);
-    const fat = parseFloat(document.getElementById("fat").value);
-    const servings = parseFloat(document.getElementById("servings").value) || 1;
-
-    if (!name || isNaN(calories) || calories < 0 || isNaN(fat) || fat < 0) {
-        alert("Please enter a valid food name, calories, and fat content.");
-        return;
-    }
-
-    const swips = calculateSWIPS(calories, fat);
-
-    currentFood = {
-        id: Date.now(),
-        name: name,
-        calories: calories,
-        fat: fat,
-        servings: servings,
-        swips: swips
-    };
-
-    document.getElementById("resultNumber").textContent = swips.toFixed(1);
-    document.getElementById("result").classList.remove("hidden");
-}
-
-function displayPresetDatabase() {
-    const list = document.getElementById("presetFoodList");
-    const search = document.getElementById("searchDb").value.toLowerCase();
+    plannerLog.push({ id: Date.now(), name, swips, category, type });
+    localStorage.setItem("swipPlannerLog", JSON.stringify(plannerLog));
     
-    const combinedPresets = [...customPresets, ...DEFAULT_PRESETS];
-    const filtered = combinedPresets.filter(item => item.name.toLowerCase().includes(search));
+    switchTab("planner");
+    renderPlanner();
+}
 
-    if (filtered.length === 0) {
-        list.innerHTML = "<p class='small' style='text-align:center; padding: 12px;'>No matching foods in preset library.</p>";
-        return;
-    }
+function quickAddModal(category) {
+    document.getElementById("foodCategory").value = category;
+    switchTab("calc");
+}
 
-    list.innerHTML = "";
-    filtered.forEach(item => {
-        const swips = calculateSWIPS(item.calories, item.fat);
-        const div = document.createElement("div");
-        div.className = "food";
+function renderPlanner() {
+    let totalSwips = 0;
+    let totalHex = 0;
+
+    const sections = {
+        Breakfast: document.getElementById("listBreakfast"),
+        Lunch: document.getElementById("listLunch"),
+        Dinner: document.getElementById("listDinner"),
+        "In-betweens": document.getElementById("listInbetween")
+    };
+
+    Object.keys(sections).forEach(key => sections[key].innerHTML = "");
+
+    plannerLog.forEach(item => {
+        if (item.type === "swip") totalSwips += item.swips;
+        if (item.type === "hex") totalHex += 1;
+
+        const row = document.createElement("div");
+        row.className = "food-row";
         
-        const badge = item.isCustom ? `<span class="badge-custom">Custom</span>` : "";
-        const deleteBtn = item.isCustom 
-            ? `<button class="danger" onclick="deleteCustomPreset('${item.id}')">🗑️ Remove</button>` 
-            : "";
+        let valDisplay = `<span class="val-swip">${toFraction(item.swips)}</span>`;
+        if (item.type === "free") valDisplay = `<span class="val-free">Free</span>`;
+        if (item.type === "hex") valDisplay = `<span class="val-hex">🌾</span>`;
 
-        div.innerHTML = `
-            <div class="food-name">${escapeHTML(item.name)} ${badge}</div>
-            <div class="small">${item.calories} kcal · ${item.fat}g fat</div>
-            <strong style="color:#6b4eff;">${swips.toFixed(1)} SWIPs</strong>
-            <div class="food-buttons">
-                <button class="secondary" onclick="usePresetFood('${escapeHTML(item.name)}', ${item.calories}, ${item.fat})">
-                    ⚡ Use in Calculator
-                </button>
-                ${deleteBtn}
-            </div>
+        row.innerHTML = `
+            <span class="food-title">${escapeHTML(item.name)}</span>
+            ${valDisplay}
+            <button onclick="removeItem(${item.id})" style="border:none; background:none; color:#ef4444; margin-left:8px;">✕</button>
         `;
-        list.appendChild(div);
-    });
-}
 
-function usePresetFood(name, cal, fat) {
-    triggerHaptic();
-    document.getElementById("foodName").value = name;
-    document.getElementById("calories").value = cal;
-    document.getElementById("fat").value = fat;
-    document.getElementById("servings").value = 1;
-    showTab("calculator");
-    calculate();
-}
-
-function saveCurrentFood() {
-    if (!currentFood) return;
-    triggerHaptic();
-
-    const existing = foods.find(f => f.name.toLowerCase() === currentFood.name.toLowerCase());
-
-    if (existing) {
-        if (!confirm("A food with this name already exists. Replace it?")) return;
-        foods = foods.filter(f => f.id !== existing.id);
-    }
-
-    foods.push(currentFood);
-    saveFoods();
-    alert("Food saved to your list!");
-    displayFoods();
-}
-
-function saveFoods() {
-    localStorage.setItem("swipsFoods", JSON.stringify(foods));
-}
-
-function addCurrentToToday() {
-    if (!currentFood) return;
-    triggerHaptic();
-
-    const total = currentFood.swips * currentFood.servings;
-    todayFoods.push({
-        id: Date.now(),
-        name: currentFood.name,
-        swips: total
+        if (sections[item.category]) sections[item.category].appendChild(row);
     });
 
-    saveToday();
-    alert(total.toFixed(1) + " SWIPs added to today.");
+    document.getElementById("ringSwips").textContent = toFraction(totalSwips);
+    document.getElementById("ringHex").textContent = totalHex;
 }
 
-function displayFoods() {
-    const list = document.getElementById("foodList");
-    const search = document.getElementById("search").value.toLowerCase();
-    const filtered = foods.filter(food => food.name.toLowerCase().includes(search));
-
-    if (filtered.length === 0) {
-        list.innerHTML = "<p class='small' style='text-align:center; padding: 12px;'>No saved foods found.</p>";
-        return;
-    }
-
-    list.innerHTML = "";
-    filtered.forEach(food => {
-        const div = document.createElement("div");
-        div.className = "food";
-        div.innerHTML = `
-            <div class="food-name">${escapeHTML(food.name)}</div>
-            <div class="small">${food.calories} kcal · ${food.fat}g fat</div>
-            <strong style="color:#6b4eff;">${food.swips.toFixed(1)} SWIPs</strong>
-            <div class="food-buttons">
-                <button class="secondary" onclick="addFoodToToday(${food.id})">➕ Add today</button>
-                <button class="danger" onclick="deleteFood(${food.id})">🗑️ Delete</button>
-            </div>
-        `;
-        list.appendChild(div);
-    });
-}
-
-function addFoodToToday(id) {
+function removeItem(id) {
     triggerHaptic();
-    const food = foods.find(f => f.id === id);
-    if (!food) return;
-
-    const swips = food.swips * food.servings;
-    todayFoods.push({
-        id: Date.now(),
-        name: food.name,
-        swips: swips
-    });
-
-    saveToday();
-    alert(swips.toFixed(1) + " SWIPs added to today.");
-}
-
-function deleteFood(id) {
-    triggerHaptic();
-    if (!confirm("Delete this saved food?")) return;
-    foods = foods.filter(food => food.id !== id);
-    saveFoods();
-    displayFoods();
-}
-
-function saveToday() {
-    localStorage.setItem("swipsToday", JSON.stringify(todayFoods));
-    displayToday();
-}
-
-function displayToday() {
-    const total = todayFoods.reduce((sum, food) => sum + food.swips, 0);
-    document.getElementById("todayTotal").textContent = total.toFixed(1);
-
-    const list = document.getElementById("todayFoods");
-    list.innerHTML = "";
-
-    if (todayFoods.length === 0) {
-        list.innerHTML = "<p class='small' style='text-align:center; padding: 12px;'>No foods logged today.</p>";
-        return;
-    }
-
-    todayFoods.forEach(food => {
-        const div = document.createElement("div");
-        div.className = "food";
-        div.innerHTML = `
-            <div class="food-name">${escapeHTML(food.name)}</div>
-            <div style="font-weight: bold; color: #6b4eff;">${food.swips.toFixed(1)} SWIPs</div>
-        `;
-        list.appendChild(div);
-    });
+    plannerLog = plannerLog.filter(i => i.id !== id);
+    localStorage.setItem("swipPlannerLog", JSON.stringify(plannerLog));
+    renderPlanner();
 }
 
 function clearToday() {
-    triggerHaptic();
-    if (!confirm("Clear all items logged today?")) return;
-    todayFoods = [];
-    saveToday();
+    if (!confirm("Clear all items in today's planner?")) return;
+    plannerLog = [];
+    localStorage.setItem("swipPlannerLog", JSON.stringify(plannerLog));
+    renderPlanner();
 }
 
-function showTab(tab) {
+function displayPresets() {
+    const list = document.getElementById("presetList");
+    const q = document.getElementById("searchDb").value.toLowerCase();
+    list.innerHTML = "";
+
+    PRESETS.filter(p => p.name.toLowerCase().includes(q)).forEach(p => {
+        const swipVal = p.type === "swip" ? calculateSWIPS(p.cal, p.fat) : 0;
+        const div = document.createElement("div");
+        div.className = "food-row";
+        div.innerHTML = `
+            <div>
+                <div><strong>${escapeHTML(p.name)}</strong></div>
+                <div style="font-size:11px; color:#64748b;">${p.cal} kcal · ${p.fat}g fat</div>
+            </div>
+            <button onclick="usePreset('${escapeHTML(p.name)}', ${p.cal}, ${p.fat}, '${p.type}')" style="background:#e11d48; color:#fff; border:0; padding:6px 10px; border-radius:6px; font-weight:600;">+ Use</button>
+        `;
+        list.appendChild(div);
+    });
+}
+
+function usePreset(name, cal, fat, type) {
+    document.getElementById("foodName").value = name;
+    document.getElementById("calories").value = cal;
+    document.getElementById("fat").value = fat;
+    document.getElementById("foodType").value = type;
+    switchTab("calc");
+}
+
+function switchTab(tab) {
     triggerHaptic();
-    document.getElementById("calculator").classList.add("hidden");
-    document.getElementById("database").classList.add("hidden");
-    document.getElementById("foods").classList.add("hidden");
-    document.getElementById("today").classList.add("hidden");
+    document.getElementById("tabPlanner").classList.add("hidden");
+    document.getElementById("tabCalculator").classList.add("hidden");
+    document.getElementById("tabPresets").classList.add("hidden");
 
-    document.getElementById(tab).classList.remove("hidden");
+    document.getElementById("navPlan").classList.remove("active");
+    document.getElementById("navCalc").classList.remove("active");
+    document.getElementById("navPreset").classList.remove("active");
 
-    document.getElementById("tabCalculator").classList.remove("active");
-    document.getElementById("tabDatabase").classList.remove("active");
-    document.getElementById("tabFoods").classList.remove("active");
-    document.getElementById("tabToday").classList.remove("active");
-
-    if (tab === "calculator") document.getElementById("tabCalculator").classList.add("active");
-    if (tab === "database") {
-        document.getElementById("tabDatabase").classList.add("active");
-        displayPresetDatabase();
-    }
-    if (tab === "foods") {
-        document.getElementById("tabFoods").classList.add("active");
-        displayFoods();
-    }
-    if (tab === "today") {
-        document.getElementById("tabToday").classList.add("active");
-        displayToday();
+    if (tab === "planner") {
+        document.getElementById("tabPlanner").classList.remove("hidden");
+        document.getElementById("navPlan").classList.add("active");
+        renderPlanner();
+    } else if (tab === "calc") {
+        document.getElementById("tabCalculator").classList.remove("hidden");
+        document.getElementById("navCalc").classList.add("active");
+    } else if (tab === "presets") {
+        document.getElementById("tabPresets").classList.remove("hidden");
+        document.getElementById("navPreset").classList.add("active");
+        displayPresets();
     }
 }
 
 function toggleDarkMode() {
-    triggerHaptic();
     document.body.classList.toggle("dark");
-    localStorage.setItem("swipsDark", document.body.classList.contains("dark"));
 }
 
-function escapeHTML(text) {
-    const div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML;
+function escapeHTML(str) {
+    const d = document.createElement("div");
+    d.textContent = str;
+    return d.innerHTML;
 }
 
-// INITIALIZATION
-if (localStorage.getItem("swipsDark") === "true") {
-    document.body.classList.add("dark");
-}
-
-displayFoods();
-displayToday();
+renderPlanner();
 </script>
-
 </body>
 </html>
