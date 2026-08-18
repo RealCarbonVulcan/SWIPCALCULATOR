@@ -31,17 +31,13 @@ body {
     overflow-x: hidden;
 }
 
-body.dark {
-    background: #090d16;
-    color: #f1f5f9;
-}
+body.dark { background: #090d16; color: #f1f5f9; }
 
 header {
     background: #e11d48;
     color: white;
     padding: 16px 18px;
     text-align: center;
-    position: relative;
 }
 
 header h1 {
@@ -52,11 +48,7 @@ header h1 {
     font-style: italic;
 }
 
-.container {
-    max-width: 600px;
-    margin: auto;
-    padding: 12px 14px 80px;
-}
+.container { max-width: 600px; margin: auto; padding: 12px 14px 80px; }
 
 .card {
     background: #ffffff;
@@ -66,34 +58,13 @@ header h1 {
     box-shadow: 0 2px 10px rgba(0,0,0,0.03);
 }
 
-.dark .card {
-    background: #151c2c;
-    border: 1px solid #222f47;
-}
+.dark .card { background: #151c2c; border: 1px solid #222f47; }
 
-/* PLANNER RINGS */
-.date-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-weight: 600;
-    font-size: 15px;
-    margin-bottom: 16px;
-}
+.date-bar { display: flex; align-items: center; justify-content: space-between; font-weight: 600; font-size: 15px; margin-bottom: 16px; }
 
-.rings-container {
-    display: flex;
-    justify-content: space-around;
-    text-align: center;
-    margin-bottom: 12px;
-}
+.rings-container { display: flex; justify-content: space-around; text-align: center; margin-bottom: 12px; }
 
-.ring-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 30%;
-}
+.ring-box { display: flex; flex-direction: column; align-items: center; width: 30%; }
 
 .ring {
     width: 70px;
@@ -109,70 +80,27 @@ header h1 {
 }
 
 .dark .ring { border-color: #2a3854; }
-
 .ring.swips { border-color: #a855f7; color: #a855f7; }
 .ring.hex { border-color: #ea580c; color: #ea580c; }
 .ring.activity { border-color: #64748b; color: #64748b; }
 
-.ring-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #64748b;
-}
+.ring-label { font-size: 12px; font-weight: 600; color: #64748b; }
 
-/* MEAL SECTIONS */
-.meal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 17px;
-    font-weight: 700;
-}
-
+.meal-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 17px; font-weight: 700; }
 .dark .meal-header { border-bottom-color: #222f47; }
 
-.meal-add-btn {
-    background: none;
-    border: none;
-    font-size: 22px;
-    color: #000000;
-    cursor: pointer;
-    padding: 0 8px;
-    margin: 0;
-}
+.meal-add-btn { background: none; border: none; font-size: 22px; color: #000; cursor: pointer; padding: 0 8px; }
+.dark .meal-add-btn { color: #fff; }
 
-.dark .meal-add-btn { color: #ffffff; }
-
-.food-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px dashed #e2e8f0;
-    font-size: 14px;
-}
-
+.food-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px dashed #e2e8f0; font-size: 14px; }
 .dark .food-row { border-bottom-color: #222f47; }
 
-.food-title {
-    flex: 1;
-    padding-right: 10px;
-}
+.food-title { flex: 1; padding-right: 10px; }
 
 .val-swip { color: #a855f7; font-weight: 700; }
 .val-free { color: #16a34a; font-weight: 700; }
-.val-hex {
-    background: #ea580c;
-    color: white;
-    font-size: 10px;
-    font-weight: 800;
-    padding: 2px 6px;
-    border-radius: 50%;
-}
+.val-hex { background: #ea580c; color: white; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 50%; }
 
-/* FORM CONTROLS */
 label { display: block; margin-top: 10px; font-weight: 600; font-size: 13px; }
 input, select {
     width: 100%;
@@ -185,11 +113,7 @@ input, select {
     background: #ffffff;
     color: #0f172a;
 }
-.dark input, .dark select {
-    background: #1e293b;
-    color: #fff;
-    border-color: #334155;
-}
+.dark input, .dark select { background: #1e293b; color: #fff; border-color: #334155; }
 
 button.primary {
     width: 100%;
@@ -203,7 +127,6 @@ button.primary {
     margin-top: 12px;
 }
 
-/* BOTTOM NAVIGATION NAVBAR */
 .nav-bar {
     position: fixed;
     bottom: 0;
@@ -212,24 +135,14 @@ button.primary {
     height: 60px;
     background: #ffffff;
     display: flex;
-    justify-style: space-around;
+    justify-content: space-around;
     align-items: center;
     border-top: 1px solid #e2e8f0;
     z-index: 1000;
 }
 .dark .nav-bar { background: #0f172a; border-top-color: #1e293b; }
 
-.nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 11px;
-    color: #64748b;
-    background: none;
-    border: none;
-    padding: 0;
-    margin: 0;
-}
+.nav-item { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: #64748b; background: none; border: none; padding: 0; }
 .nav-item.active { color: #e11d48; font-weight: 700; }
 
 .hidden { display: none !important; }
@@ -243,7 +156,6 @@ button.primary {
 
 <div class="container">
 
-    <!-- PLANNER TAB -->
     <section id="tabPlanner">
         <div class="card">
             <div class="date-bar">
@@ -296,7 +208,6 @@ button.primary {
         </div>
     </section>
 
-    <!-- CALCULATOR TAB -->
     <section id="tabCalculator" class="hidden">
         <div class="card">
             <h2>📷 Scanners</h2>
@@ -337,7 +248,6 @@ button.primary {
         </div>
     </section>
 
-    <!-- PRESETS TAB -->
     <section id="tabPresets" class="hidden">
         <div class="card">
             <h2>📚 Tesco & Sainsbury's Presets</h2>
@@ -348,7 +258,6 @@ button.primary {
 
 </div>
 
-<!-- BOTTOM NAVIGATION -->
 <div class="nav-bar">
     <button id="navPlan" class="nav-item active" onclick="switchTab('planner')">
         <span style="font-size:18px;">📝</span>
@@ -377,10 +286,21 @@ const PRESETS = [
     { name: "Bananas / Apples / Grapes", cal: 80, fat: 0.1, type: "free" }
 ];
 
-let plannerLog = JSON.parse(localStorage.getItem("swipPlannerLog") || "[]");
-let html5QrcodeScanner = null;
+// FIXED STORAGE RECOVERY
+let plannerLog = [];
+try {
+    const saved = localStorage.getItem("swipsToday") || localStorage.getItem("swipPlannerLog");
+    if (saved) plannerLog = JSON.parse(saved);
+} catch(e) {
+    plannerLog = [];
+}
 
 function triggerHaptic() { if ("vibrate" in navigator) navigator.vibrate(12); }
+
+function saveData() {
+    localStorage.setItem("swipsToday", JSON.stringify(plannerLog));
+    localStorage.setItem("swipPlannerLog", JSON.stringify(plannerLog));
+}
 
 function toFraction(val) {
     if (val === 0) return "Free";
@@ -394,7 +314,6 @@ function toFraction(val) {
     return whole.toString();
 }
 
-// Corrected SWIP Formula (Standard 20 kcal = 1 SWIP rule for snacks/treats)
 function calculateSWIPS(cal, fat) {
     return cal / 20;
 }
@@ -411,7 +330,7 @@ function calculateAndAdd() {
     if (type === "swip") swips = calculateSWIPS(cal, fat);
 
     plannerLog.push({ id: Date.now(), name, swips, category, type });
-    localStorage.setItem("swipPlannerLog", JSON.stringify(plannerLog));
+    saveData();
     
     switchTab("planner");
     renderPlanner();
@@ -462,14 +381,14 @@ function renderPlanner() {
 function removeItem(id) {
     triggerHaptic();
     plannerLog = plannerLog.filter(i => i.id !== id);
-    localStorage.setItem("swipPlannerLog", JSON.stringify(plannerLog));
+    saveData();
     renderPlanner();
 }
 
 function clearToday() {
     if (!confirm("Clear all items in today's planner?")) return;
     plannerLog = [];
-    localStorage.setItem("swipPlannerLog", JSON.stringify(plannerLog));
+    saveData();
     renderPlanner();
 }
 
