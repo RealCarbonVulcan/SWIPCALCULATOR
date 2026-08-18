@@ -212,7 +212,7 @@ button.primary {
     height: 60px;
     background: #ffffff;
     display: flex;
-    justify-content: space-around;
+    justify-style: space-around;
     align-items: center;
     border-top: 1px solid #e2e8f0;
     z-index: 1000;
@@ -394,8 +394,9 @@ function toFraction(val) {
     return whole.toString();
 }
 
+// Corrected SWIP Formula (Standard 20 kcal = 1 SWIP rule for snacks/treats)
 function calculateSWIPS(cal, fat) {
-    return (cal / 20) + (fat * 0.5);
+    return cal / 20;
 }
 
 function calculateAndAdd() {
